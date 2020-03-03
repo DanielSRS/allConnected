@@ -8,20 +8,22 @@ public class Graph<T> {
 
 
 	// We use Hashmap to store the edges in the graph 
-	private Map<T, List<T> > map = new HashMap<>(); 
+	private Map<T, List<Object> > map = new HashMap<>(); 
 
 	// This function adds a new vertex to the graph 
 	public void addVertex(T s) 
 	{ 
-		map.put(s, new LinkedList<T>()); 
+		map.put(s, new LinkedList<Object>()); 
 	} 
 
 	// This function adds the edge 
 	// between source to destination 
 	public void addEdge(T source, 
 						T destination, 
+						int weight, 
 						boolean bidirectional) 
 	{ 
+		Edge<T> aresta = new Edge<T>(source, destination, weight);
 
 		if (!map.containsKey(source)) 
 			addVertex(source); 
@@ -29,9 +31,9 @@ public class Graph<T> {
 		if (!map.containsKey(destination)) 
 			addVertex(destination); 
 
-		map.get(source).add(destination); 
+		map.get(source).add(aresta); 
 		if (bidirectional == true) { 
-			map.get(destination).add(source); 
+			map.get(destination).add(aresta); 
 		} 
 	} 
 
@@ -93,7 +95,7 @@ public class Graph<T> {
 
 		for (T v : map.keySet()) { 
 			builder.append(v.toString() + ": "); 
-			for (T w : map.get(v)) { 
+			for (Object w : map.get(v)) { 
 				builder.append(w.toString() + " "); 
 			} 
 			builder.append("\n"); 

@@ -9,13 +9,13 @@ class GraphTest {
 	void test() {
 		Graph<Integer> g = new Graph<Integer>();
 		
-		g.addEdge(0, 1, true); 
-		g.addEdge(0, 4, true); 
-		g.addEdge(1, 2, true); 
-		g.addEdge(1, 3, true); 
-		g.addEdge(1, 4, true); 
-		g.addEdge(2, 3, true); 
-		g.addEdge(3, 4, true);
+		g.addEdge(0, 1, 11, true); 
+		g.addEdge(0, 4, 41, true); 
+		g.addEdge(1, 2, 20, true); 
+		g.addEdge(1, 3, 38, true); 
+		g.addEdge(1, 4, 46, true); 
+		g.addEdge(2, 3, 33, true); 
+		g.addEdge(3, 4, 46, true);
 		
 		assertEquals("print the graph.", "Graph:\n0: 1 4 \n1: 0 2 3 4 \n2: 1 3 \n3: 1 2 4 \n4: 0 1 3 \n", "Graph:\n" + g.toString());
 		assertEquals("gives the no of vertices in the graph.", "The graph has 5 vertex", g.getVertexCount());
