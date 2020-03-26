@@ -23,7 +23,8 @@ public class Graph<T> {
 						int weight, 
 						boolean bidirectional) 
 	{ 
-		Edge<T> aresta = new Edge<T>(source, destination, weight);
+		Edge<T> aresta1 = new Edge<T>(source, weight);
+		Edge<T> aresta2 = new Edge<T>(destination, weight);
 
 		if (!map.containsKey(source)) 
 			addVertex(source); 
@@ -31,21 +32,22 @@ public class Graph<T> {
 		if (!map.containsKey(destination)) 
 			addVertex(destination); 
 
-		map.get(source).add(aresta); 
+		map.get(source).add(aresta2); 
 		if (bidirectional == true) { 
-			map.get(destination).add(aresta); 
+			map.get(destination).add(aresta1); 
 		} 
 	} 
 
-	// This function gives the count of vertices 
+	/*
 	public String getVertexCount() 
 	{ 
 		return ("The graph has "
 						+ map.keySet().size() 
 						+ " vertex"); 
-	} 
+	}
+	*/
 
-	// This function gives the count of edges 
+	/*
 	public String getEdgesCount(boolean bidirection) 
 	{ 
 		int count = 0; 
@@ -59,6 +61,8 @@ public class Graph<T> {
 						+ count 
 						+ " edges."); 
 	} 
+	
+	*/
 
 	// This function gives whether 
 	// a vertex is present or not. 
@@ -75,16 +79,16 @@ public class Graph<T> {
 	} 
 
 	// This function gives whether an edge is present or not. 
-	public String hasEdge(T s, T d) 
-	{ 
-		if (map.get(s).contains(d)) { 
-			return ("The graph has an edge between "
-							+ s + " and " + d + "."); 
-		} 
-		else { 
-			return ("The graph has no edge between "
-							+ s + " and " + d + "."); 
-		} 
+	@SuppressWarnings("unchecked")
+	public double hasEdge(T s, T d) 
+	{
+		List<Object> v = map.get(s);
+		for (Object h: v) {
+			if((((Edge<T>) h).getDestiny() == d)) {
+				return ( (Edge<T>) h).getWeight();
+			}
+		}
+		return -1;  
 	} 
 
 	// Prints the adjancency list of each vertex. 
@@ -102,9 +106,110 @@ public class Graph<T> {
 		} 
 
 		return (builder.toString()); 
-	} 
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void smp() {
+		int keySetSize = this.map.keySet().size();				// quantidade de vertices no grafo
+		Object[] keyList = this.map.keySet().toArray();			// transforma em um array
+		
+		for(Object theKey: keyList) { 							// para cada vertice do grafo
+		
+
+			Object[] shortestPath = new Object[keySetSize - 1];	
+			
+			int j = 0;											//pervocorre o arrray com os vertices (chaves) do grafo
+			for(int indexForShortestPath = 0;
+					indexForShortestPath < keySetSize -1;
+					indexForShortestPath++, j++) 
+			{
+				if(keyList[indexForShortestPath] == theKey) j++;			// ignora o vertice selecionado anteriormente (k)
+				dj<T> a = new dj<T>(( (T) keyList[j]), -1, false, null); //
+				shortestPath[indexForShortestPath] = a;			// adiciona todos os outros nos no vetor
+			}
+			
+			int unmarked = keySetSize - 1;						// quantos menores caminhos ainda não foram encontrados;
+			int shortestIndex = 0;								// ultimoo menor caminho encontrado; indice do vetor;
+			T selected = (T) theKey;							// vertice selecionado atual. diferente do vertice selecionado anres; muda a cada iteração do loop a seguir
+			
+			double weight = 0;
+			
+			while(unmarked > 0) {
+			
+				for(int l = 0; l < keySetSize -1; l++) {			//percorre o vetor verificando os menores caminhos entre os vertices
+					double peso = this.hasEdge(selected, ((dj<T>) shortestPath[l]).key);			//distancia entre o no selecionado e um dos nos no array
+					if(peso == -1) {}							//não é vizinho;
+					
+					
+					//se encontrado um caminho até o vertice
+					//se encontrado um outro camiho para o vertice que ja não seja o menor
+					else if(( (dj<T>) shortestPath[l]).peso == -1 || 
+							( ( (dj<T>) shortestPath[l]).peso > (peso + weight) & 
+							!( (dj<T>) shortestPath[l]).marked)) 
+					{
+					
+						( (dj<T>) shortestPath[l]).peso = weight + peso;
+						( (dj<T>) shortestPath[l]).origin = selected;			//nao é selected ou é?
+					}
+				}
+				
+				shortestIndex = 0;
+				//selecionar menor caminho encontrado na ultima execussão
+				for(int y = 0; y < keySetSize - 1; y++) {
+					
+					//selecionando primeiro novo (não marcado) caminho encontrado para comparar com o restante
+					if(( (dj<T>) shortestPath[shortestIndex]).marked || 
+						 ( (dj<T>) shortestPath[shortestIndex]).peso == -1 & 
+						 ( (dj<T>) shortestPath[y]).peso != -1 & 
+						 !( ( (dj<T>) shortestPath[y]).marked)) 
+					{
+						shortestIndex = y;
+					}
+					
+					//se oncontrado um novo menor caminho no vetor
+					else if(( (dj<T>) shortestPath[y]).peso != -1 & 
+							( (dj<T>) shortestPath[y]).peso < ( (dj<T>) shortestPath[shortestIndex]).peso & 
+							!(( (dj<T>) shortestPath[y]).marked)) 
+					{
+						shortestIndex = y;
+					}
+				}
+				
+				( (dj<T>) shortestPath[shortestIndex]).marked = true;			//marca o menor vertice / caminho
+				weight = ( (dj<T>) shortestPath[shortestIndex]).peso;
+				selected = ( (dj<T>) shortestPath[shortestIndex]).key;
+				unmarked = unmarked - 1;
+			}
+			
+			// Resultado
+			for(int w = 0; w < keySetSize - 1; w++) {
+				System.out.print("De " + theKey.toString() + " para: ");
+				System.out.print(( (dj<T>) shortestPath[w]).key.toString());
+				System.out.print(", com peso: ");
+				System.out.print(( (dj<T>) shortestPath[w]).peso);
+				System.out.print(", e vindo de: ");
+				if(( (dj<T>) shortestPath[w]).origin != null)
+					System.out.print(( (dj<T>) shortestPath[w]).origin.toString());
+				else System.out.print("null");
+				System.out.print("\n\n");
+			}
+			
+		}
+	}
+	
+
+	class dj<L>{
+		public L key;
+		public double peso;
+		public boolean marked;
+		public L origin;
+		
+		public dj(L k, double p, boolean m, L o) {
+			this.key = k;
+			this.marked = m;
+			this.origin = o;
+			this.peso = p;
+		}
+	}
 }
 
-
-// Code from:
-// https://www.geeksforgeeks.org/implementing-generic-graph-in-java/
